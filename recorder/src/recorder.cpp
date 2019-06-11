@@ -96,20 +96,29 @@ static void callback(void *data, wl_callback *cb, uint32_t time)
     QTimer::singleShot(0, static_cast<Recorder *>(data), &Recorder::start);
 }
 
-Recorder::Recorder(const QString &destination, int fps, int buffers, bool fullMode, QObject *parent)
+Recorder::Recorder(const Options &options, QObject *parent)
     : QObject(parent)
-    , m_avi(new QAviWriter(destination, fps, QStringLiteral("MJPG"), this))
-    , m_destination(destination)
-    , m_fps(fps)
-    , m_buffersCount(buffers)
+    , m_avi(new QAviWriter(options.destination, options.fps, QStringLiteral("MJPG"), this))
+    , m_options(options)
     , m_pool(new QThreadPool(this))
     , m_timer(new QTimer(this))
-    , m_fullMode(fullMode)
 {
+    qCDebug(logrecorder) << "Writing to" << options.destination;
+    qCDebug(logrecorder) << "Fps:" << options.fps;
+    qCDebug(logrecorder) << "Buffers:" << options.buffers;
+    qCDebug(logrecorder) << "Scale:" << options.scale;
+    qCDebug(logrecorder) << "Smooth:" << options.smooth;
+    qCDebug(logrecorder) << "Quality:" << options.quality;
+    if (options.fullMode) {
+        qCDebug(logrecorder) << "Writing full fps frames.";
+    } else {
+        qCDebug(logrecorder) << "Writing only changed frames.";
+    }
+
     m_pool->setMaxThreadCount(1);
 
     m_timer->setTimerType(Qt::PreciseTimer);
-    m_timer->setInterval(1000 / m_fps);
+    m_timer->setInterval(1000 / m_options.fps);
     m_timer->setSingleShot(true);
     connect(m_timer, &QTimer::timeout, this, &Recorder::saveFrame);
 }
@@ -147,7 +156,10 @@ void Recorder::start()
     m_screen = QGuiApplication::screens().first();
     wl_output *output = static_cast<wl_output *>(native->nativeResourceForScreen(QByteArrayLiteral("output"), m_screen));
 
-    m_avi->setSize(m_screen->size());
+    QSize size = m_screen->size();
+    size.setWidth(qRound(size.width() * m_options.scale));
+    size.setHeight(qRound(size.height() * m_options.scale));
+    m_avi->setSize(size);
     m_avi->open();
 
     m_recorder = lipstick_recorder_manager_create_recorder(m_manager, output);
@@ -206,8 +218,9 @@ void Recorder::saveFrame()
 
     QAviWriter *avi = m_avi;
     QPixmap pix = m_lastFrame->pixmap;
-    QtConcurrent::run(m_pool, [avi, pix] {
-        avi->addFrame(pix, "JPG");
+    int quality = m_options.quality;
+    QtConcurrent::run(m_pool, [avi, pix, quality] {
+        avi->addFrame(pix, "JPG", quality);
     });
     if (m_starving)
         recordFrame();
@@ -219,7 +232,7 @@ void Recorder::setup(void *data, lipstick_recorder *recorder, int width, int hei
     Recorder *rec = static_cast<Recorder *>(data);
     QMutexLocker lock(&rec->m_mutex);
 
-    for (int i = 0; i < rec->m_buffersCount; ++i) {
+    for (int i = 0; i < rec->m_options.buffers; ++i) {
         Buffer *buffer = Buffer::create(rec->m_shm, width, height, stride, format);
         if (!buffer)
             qFatal("Failed to create a buffer.");
@@ -243,13 +256,17 @@ void Recorder::frame(void *data, lipstick_recorder *recorder, wl_buffer *buffer,
     QMutexLocker lock(&rec->m_mutex);
     Buffer *buf = static_cast<Buffer *>(wl_buffer_get_user_data(buffer));
     QImage img = transform == LIPSTICK_RECORDER_TRANSFORM_Y_INVERTED ? buf->image.mirrored(false, true) : buf->image;
+    if (rec->m_options.scale != 1.0f) {
+        img = img.scaled(rec->m_avi->size(), Qt::KeepAspectRatio, rec->m_options.smooth ? Qt::SmoothTransformation : Qt::FastTransformation).convertToFormat(QImage::Format_RGBA8888);
+    }
     buf->pixmap = QPixmap::fromImage(img);;
     QAviWriter *avi = rec->m_avi;
     QPixmap pix = buf->pixmap;
-    QtConcurrent::run(rec->m_pool, [avi, pix] {
-        avi->addFrame(pix, "JPG");
+    int quality = rec->m_options.quality;
+    QtConcurrent::run(rec->m_pool, [avi, pix, quality] {
+        avi->addFrame(pix, "JPG", quality);
     });
-    if (rec->m_fullMode) {
+    if (rec->m_options.fullMode) {
         rec->m_timer->start();
         rec->m_lastFrame = buf;
     }

@@ -57,6 +57,23 @@ int main(int argc, char *argv[])
             app.translate("main", "buffers"));
     parser.addOption(buffersOption);
 
+    QCommandLineOption scaleOption(
+            QStringLiteral("scale"),
+            app.translate("main", "Scale frames ratio."),
+            app.translate("main", "scale"));
+    parser.addOption(scaleOption);
+
+    QCommandLineOption smoothOption(
+            {QStringLiteral("s"), QStringLiteral("smooth")},
+            app.translate("main", "Scale frames using SmoothTransformation."));
+    parser.addOption(smoothOption);
+
+    QCommandLineOption qualityOption(
+            QStringLiteral("quality"),
+            app.translate("main", "Frame JPEG compression quality."),
+            app.translate("main", "quality"));
+    parser.addOption(qualityOption);
+
     QCommandLineOption daemonOption(
             {QStringLiteral("d"), QStringLiteral("daemon")},
             app.translate("main", "Daemonize recorder. Will create D-Bus service org.coderus.screenrecorder on system bus."));
@@ -75,22 +92,24 @@ int main(int argc, char *argv[])
     }
 
     const QString dest = args.first();
-    bool fpsOk = false;
-    int fps = parser.value(framerateOption).toInt(&fpsOk);
-    if (!fpsOk) {
-        qCritical(logmain) << "Framerate option should be integer!";
-        exit(1);
+
+    int fps = 24;
+    if (parser.isSet(framerateOption)) {
+        fps = parser.value(framerateOption).toInt();
     }
     int buffers = fps * 2;
     if (parser.isSet(buffersOption)) {
-        bool buffersOk = false;
-        buffers = parser.value(buffersOption).toInt(&buffersOk);
-        if (!buffersOk) {
-            qCritical(logmain) << "Buffres option should be integer!";
-            exit(1);
-        }
+        buffers = parser.value(buffersOption).toInt();
     }
-    qCDebug(logmain) << "Writing to" << dest << "Fps:" << fps << "Buffers:" << buffers;
+    float scale = 1.0f;
+    if (parser.isSet(scaleOption)) {
+        scale = parser.value(scaleOption).toFloat();
+    }
+    int quality = 100;
+    if (parser.isSet(qualityOption)) {
+        quality = parser.value(qualityOption).toInt();
+    }
+    const bool smooth = parser.isSet(fullOption);
     if (parser.isSet(daemonOption)) {
         qCDebug(logmain) << "Daemonize";
     } else {
@@ -99,12 +118,15 @@ int main(int argc, char *argv[])
     }
 
     const bool fullMode = parser.isSet(fullOption);
-    if (fullMode) {
-        qCDebug(logmain) << "Writing full fps frames.";
-    } else {
-        qCDebug(logmain) << "Writing only changed frames.";
-    }
-    recorder = new Recorder(dest, fps, buffers, fullMode, qGuiApp);
+    recorder = new Recorder({
+                                dest,
+                                fps,
+                                buffers,
+                                fullMode,
+                                scale,
+                                quality,
+                                smooth,
+                            }, qGuiApp);
     QTimer::singleShot(0, recorder, &Recorder::init);
 
     return app.exec();

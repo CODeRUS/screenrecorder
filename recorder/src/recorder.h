@@ -37,8 +37,19 @@ class Recorder : public QObject
 {
     Q_OBJECT
 public:
-    explicit Recorder(const QString &destination, int fps, int buffers, bool fullMode, QObject *parent = nullptr);
+    struct Options {
+        QString destination;
+        int fps;
+        int buffers;
+        bool fullMode;
+        float scale;
+        int quality;
+        bool smooth;
+    };
+
+    explicit Recorder(const Options &options, QObject *parent = nullptr);
     virtual ~Recorder();
+
 
 public slots:
     void init();
@@ -71,14 +82,10 @@ private:
     QAviWriter *m_avi = nullptr;
     bool m_shutdown = false;
 
-    QString m_destination;
-    int m_fps;
-    int m_buffersCount;
+    Options m_options;
 
     QThreadPool *m_pool;
     QTimer *m_timer;
-
-    bool m_fullMode;
 
     friend class BuffersHandler;
 };

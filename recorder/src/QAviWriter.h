@@ -26,9 +26,10 @@ public:
 	bool close();
 
     void setSize(const QSize &size);
+    QSize size() const {return d_size;}
 
 	//! Returns the number of frames in the output video file
-	unsigned int count(){return d_frame_count;}
+    unsigned int count() const {return d_frame_count;}
 	//! This function allows you to add an encoded video frame to the AVI file.
     bool addFrame(const QImage &img, const char* format = "JPG", int quality = -1);
     bool addFrame(const QPixmap &img, const char* format = "JPG", int quality = -1);
