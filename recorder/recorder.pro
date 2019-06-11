@@ -15,12 +15,23 @@ SOURCES += \
     src/main.cpp \
     src/recorder.cpp \
     src/QAviWriter.cpp \
-    src/gwavi.cpp
+    src/gwavi.cpp \
+    src/dbusadaptor.cpp
+
 
 HEADERS += \
     src/recorder.h \
     src/QAviWriter.h \
-    src/gwavi.h
+    src/gwavi.h \
+    src/dbusadaptor.h
+
+dbusService.files = dbus/org.coderus.screenrecorder.service
+dbusService.path = /usr/share/dbus-1/system-services/
+INSTALLS += dbusService
+
+dbusConf.files = dbus/org.coderus.screenrecorder.conf
+dbusConf.path = /etc/dbus-1/system.d/
+INSTALLS += dbusConf
 
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII

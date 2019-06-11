@@ -3,22 +3,30 @@
 #include <QCommandLineParser>
 #include <QGuiApplication>
 
+#include <QDateTime>
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QStandardPaths>
 #include <QTimer>
 
 #include <signal.h>
 
+#include "dbusadaptor.h"
+
 Q_LOGGING_CATEGORY(logmain, "screenrecorder.main", QtDebugMsg)
 
-static Recorder *recorder = nullptr;
+void initializeDBus()
+{
+    DBusAdaptor *adaptor = new DBusAdaptor(qApp);
+    if (!adaptor->registerService()) {
+        qApp->quit();
+    }
+    Recorder::instance()->init();
+}
 
 void handleShutDownSignal(int)
 {
-    if (!recorder) {
-        exit(0);
-    }
-    recorder->handleShutDown();
+    Recorder::instance()->handleShutDown();
 }
 
 void setShutDownSignal(int signalId)
@@ -86,13 +94,6 @@ int main(int argc, char *argv[])
 
     parser.process(app);
 
-    const QStringList args = parser.positionalArguments();
-    if (args.count() == 0) {
-        parser.showHelp();
-    }
-
-    const QString dest = args.first();
-
     int fps = 24;
     if (parser.isSet(framerateOption)) {
         fps = parser.value(framerateOption).toInt();
@@ -110,15 +111,26 @@ int main(int argc, char *argv[])
         quality = parser.value(qualityOption).toInt();
     }
     const bool smooth = parser.isSet(fullOption);
-    if (parser.isSet(daemonOption)) {
+    const bool daemonize = parser.isSet(daemonOption);
+    if (daemonize) {
         qCDebug(logmain) << "Daemonize";
     } else {
         setShutDownSignal(SIGINT); // shut down on ctrl-c
         setShutDownSignal(SIGTERM); // shut down on killall
     }
 
+    const QStringList args = parser.positionalArguments();
+    if (args.count() == 0 && !daemonize) {
+        parser.showHelp();
+    }
+
+    QString dest = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    if (args.count() > 0) {
+        dest = args.first();
+    }
+
     const bool fullMode = parser.isSet(fullOption);
-    recorder = new Recorder({
+    Recorder *recorder = new Recorder({
                                 dest,
                                 fps,
                                 buffers,
@@ -126,8 +138,14 @@ int main(int argc, char *argv[])
                                 scale,
                                 quality,
                                 smooth,
+                                daemonize,
                             }, qGuiApp);
-    QTimer::singleShot(0, recorder, &Recorder::init);
+
+    if (daemonize) {
+        QTimer::singleShot(0, &initializeDBus);
+    } else {
+        QTimer::singleShot(0, recorder, &Recorder::init);
+    }
 
     return app.exec();
 }

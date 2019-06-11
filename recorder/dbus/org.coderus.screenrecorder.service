@@ -1,0 +1,6 @@
+[D-BUS Service]
+Name=org.coderus.screenrecorder
+Interface=org.coderus.screenrecorder
+Exec=/usr/sbin/screenrecorder --daemon
+User=nemo
+Group=privileged

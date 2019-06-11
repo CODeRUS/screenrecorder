@@ -19,11 +19,16 @@ Description          : Easy creation of AVI video files for Qt-based application
 class QAviWriter : public QObject
 {
 public:
-    QAviWriter(const QString &fileName, unsigned int fps = 24, const QString &codec = QStringLiteral("MJPG"), QObject *parent = nullptr);
+    QAviWriter(const QString &codec = QStringLiteral("MJPG"), QObject *parent = nullptr);
 	~QAviWriter();
 
 	bool open();
 	bool close();
+
+    void setFileName(const QString &fileName);
+    QString fileName() const {return d_file_name;}
+
+    void setFps(unsigned int fps);
 
     void setSize(const QSize &size);
     QSize size() const {return d_size;}

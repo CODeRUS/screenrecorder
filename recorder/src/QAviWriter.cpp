@@ -10,11 +10,9 @@ Description          : Easy creation of AVI video files for Qt-based application
 
 #include <QBuffer>
 
-QAviWriter::QAviWriter(const QString &fileName, unsigned int fps, const QString &codec, QObject *parent)
+QAviWriter::QAviWriter(const QString &codec, QObject *parent)
     : QObject(parent)
-    , d_file_name(fileName)
     , d_codec(codec)
-    , d_fps(fps)
 {
 }
 
@@ -50,6 +48,16 @@ bool QAviWriter::close()
         d_gwavi = nullptr;
 
     return (error == 0);
+}
+
+void QAviWriter::setFileName(const QString &fileName)
+{
+    d_file_name = fileName;
+}
+
+void QAviWriter::setFps(unsigned int fps)
+{
+    d_fps = fps;
 }
 
 void QAviWriter::setSize(const QSize &size)

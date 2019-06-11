@@ -3,7 +3,7 @@
 
 Name:       screenrecorder
 Summary:    Sailfish screen recorder
-Version:    0.0.3
+Version:    0.1.0
 Release:    1
 Group:      System/GUI/Other
 License:    GPLv2
@@ -32,6 +32,12 @@ Lipstick recorder client
 rm -rf %{buildroot}
 %qmake5_install
 
+%post
+dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+
 %files
 %defattr(-,root,root,-)
 %attr(755, root, privileged) %{_sbindir}/screenrecorder
+
+%{_sysconfdir}/dbus-1/system.d/org.coderus.screenrecorder.conf
+%{_datadir}/dbus-1/system-services/org.coderus.screenrecorder.service
