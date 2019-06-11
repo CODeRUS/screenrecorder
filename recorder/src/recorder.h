@@ -19,8 +19,8 @@
 #include <QObject>
 #include <QMutex>
 #include <wayland-client.h>
-#include <QRunnable>
 #include <QImage>
+#include <QPixmap>
 
 class QScreen;
 class QAviWriter;
@@ -33,22 +33,11 @@ struct lipstick_recorder;
 
 class Buffer;
 
-class WorkerTask: public QRunnable
-{
-public:
-    WorkerTask(QAviWriter *avi, const QImage &image);
-    void run();
-
-    QImage m_image;
-    QAviWriter *m_avi;
-
-};
-
 class Recorder : public QObject
 {
     Q_OBJECT
 public:
-    explicit Recorder(const QString &destination, int fps, int buffers, QObject *parent = nullptr);
+    explicit Recorder(const QString &destination, int fps, int buffers, bool fullMode, QObject *parent = nullptr);
     virtual ~Recorder();
 
 public slots:
@@ -88,6 +77,8 @@ private:
 
     QThreadPool *m_pool;
     QTimer *m_timer;
+
+    bool m_fullMode;
 
     friend class BuffersHandler;
 };

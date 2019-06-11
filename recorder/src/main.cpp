@@ -62,6 +62,11 @@ int main(int argc, char *argv[])
             app.translate("main", "Daemonize recorder. Will create D-Bus service org.coderus.screenrecorder on system bus."));
     parser.addOption(daemonOption);
 
+    QCommandLineOption fullOption(
+            {QStringLiteral("f"), QStringLiteral("full")},
+            app.translate("main", "Write full frames. Including frames when idle. By default only changed frames are recorded."));
+    parser.addOption(fullOption);
+
     parser.process(app);
 
     const QStringList args = parser.positionalArguments();
@@ -93,7 +98,13 @@ int main(int argc, char *argv[])
         setShutDownSignal(SIGTERM); // shut down on killall
     }
 
-    recorder = new Recorder(dest, fps, buffers, qGuiApp);
+    const bool fullMode = parser.isSet(fullOption);
+    if (fullMode) {
+        qCDebug(logmain) << "Writing full fps frames.";
+    } else {
+        qCDebug(logmain) << "Writing only changed frames.";
+    }
+    recorder = new Recorder(dest, fps, buffers, fullMode, qGuiApp);
     QTimer::singleShot(0, recorder, &Recorder::init);
 
     return app.exec();

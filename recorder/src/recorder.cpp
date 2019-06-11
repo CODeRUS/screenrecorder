@@ -28,6 +28,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QThreadPool>
+#include <QtConcurrent>
 #include <QLoggingCategory>
 
 #include "wayland-lipstick-recorder-client-protocol.h"
@@ -84,21 +85,9 @@ public:
     wl_buffer *buffer;
     uchar *data;
     QImage image;
+    QPixmap pixmap;
     bool busy = false;
-    int transform = 0;
-    uint32_t timestamp = 0;
 };
-
-WorkerTask::WorkerTask(QAviWriter *avi, const QImage &image)
-    : m_avi(avi)
-    , m_image(image)
-{
-}
-
-void WorkerTask::run()
-{
-    m_avi->addFrame(m_image, "JPG");
-}
 
 static void callback(void *data, wl_callback *cb, uint32_t time)
 {
@@ -107,14 +96,15 @@ static void callback(void *data, wl_callback *cb, uint32_t time)
     QTimer::singleShot(0, static_cast<Recorder *>(data), &Recorder::start);
 }
 
-Recorder::Recorder(const QString &destination, int fps, int buffers, QObject *parent)
+Recorder::Recorder(const QString &destination, int fps, int buffers, bool fullMode, QObject *parent)
     : QObject(parent)
+    , m_avi(new QAviWriter(destination, fps, QStringLiteral("MJPG"), this))
     , m_destination(destination)
     , m_fps(fps)
-    , m_avi(new QAviWriter(destination, fps, QStringLiteral("MJPG"), this))
     , m_buffersCount(buffers)
     , m_pool(new QThreadPool(this))
     , m_timer(new QTimer(this))
+    , m_fullMode(fullMode)
 {
     m_pool->setMaxThreadCount(1);
 
@@ -214,9 +204,11 @@ void Recorder::saveFrame()
         return;
     }
 
-    QImage img = m_lastFrame->transform == LIPSTICK_RECORDER_TRANSFORM_Y_INVERTED ? m_lastFrame->image.mirrored(false, true) : m_lastFrame->image;
-    m_pool->start(new WorkerTask(m_avi, img));
-    m_lastFrame->busy = false;
+    QAviWriter *avi = m_avi;
+    QPixmap pix = m_lastFrame->pixmap;
+    QtConcurrent::run(m_pool, [avi, pix] {
+        avi->addFrame(pix, "JPG");
+    });
     if (m_starving)
         recordFrame();
     m_timer->start();
@@ -241,17 +233,27 @@ void Recorder::frame(void *data, lipstick_recorder *recorder, wl_buffer *buffer,
     Q_UNUSED(recorder)
 
     Recorder *rec = static_cast<Recorder *>(data);
+    if (rec->m_shutdown) {
+        return;
+    }
+
     rec->recordFrame();
     static uint32_t time = 0;
 
     QMutexLocker lock(&rec->m_mutex);
     Buffer *buf = static_cast<Buffer *>(wl_buffer_get_user_data(buffer));
-    buf->transform = transform;
-    buf->timestamp = timestamp;
-    if (rec->m_lastFrame)
-        rec->m_lastFrame->busy = false;
-    rec->m_lastFrame = buf;
-    rec->saveFrame();
+    QImage img = transform == LIPSTICK_RECORDER_TRANSFORM_Y_INVERTED ? buf->image.mirrored(false, true) : buf->image;
+    buf->pixmap = QPixmap::fromImage(img);;
+    QAviWriter *avi = rec->m_avi;
+    QPixmap pix = buf->pixmap;
+    QtConcurrent::run(rec->m_pool, [avi, pix] {
+        avi->addFrame(pix, "JPG");
+    });
+    if (rec->m_fullMode) {
+        rec->m_timer->start();
+        rec->m_lastFrame = buf;
+    }
+    buf->busy = false;
 
     time = timestamp;
 }
