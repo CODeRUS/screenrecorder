@@ -1,9 +1,6 @@
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
 
-%define __provides_exclude_from ^%{_datadir}/.*$
-%define __requires_exclude ^libgwavi.*$
-
 Name:       screenrecorder
 Summary:    Sailfish screen recorder
 Version:    0.0.1
@@ -38,4 +35,3 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %attr(755, root, privileged) %{_sbindir}/screenrecorder
-%{_datadir}/%{name}

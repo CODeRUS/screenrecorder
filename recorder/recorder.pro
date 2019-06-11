@@ -6,7 +6,7 @@ INSTALLS += target
 
 QMAKE_RPATHDIR += /usr/share/$${TARGET}/lib
 
-QT += dbus platformsupport-private
+QT += dbus concurrent platformsupport-private
 CONFIG += wayland-scanner link_pkgconfig
 PKGCONFIG += wayland-client
 WAYLANDCLIENTSOURCES += protocol/lipstick-recorder.xml
@@ -14,11 +14,13 @@ WAYLANDCLIENTSOURCES += protocol/lipstick-recorder.xml
 SOURCES += \
     src/main.cpp \
     src/recorder.cpp \
-    src/QAviWriter.cpp
+    src/QAviWriter.cpp \
+    src/gwavi.cpp
 
 HEADERS += \
     src/recorder.h \
-    src/QAviWriter.h
+    src/QAviWriter.h \
+    src/gwavi.h
 
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
@@ -34,13 +36,4 @@ isEmpty(PROJECT_PACKAGE_VERSION) {
 }
 DEFINES += PROJECT_PACKAGE_VERSION=\\\"$$VERSION\\\"
 
-LIBS += -lgwavi
-
-exists($$_PRO_FILE_PWD_/libgwavi.so) {
-gwavi.files = libgwavi.so
-gwavi.path = /usr/share/$${TARGET}/lib
-INSTALLS += gwavi
-}
-
 INCLUDEPATH += /usr/include
-INCLUDEPATH += /usr/include/gwavi
