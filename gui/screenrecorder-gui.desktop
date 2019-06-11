@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Icon=screenrecorder-gui
+Exec=screenrecorder-gui
+Name=Screenrecorder

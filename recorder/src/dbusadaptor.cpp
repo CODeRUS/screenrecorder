@@ -18,7 +18,7 @@ DBusAdaptor::DBusAdaptor(QObject *parent)
 {
     setAutoRelaySignals(true);
 
-    connect(Recorder::instance(), &Recorder::statusChanged, this, &DBusAdaptor::StatusChanged);
+    connect(Recorder::instance(), &Recorder::statusChanged, this, &DBusAdaptor::StateChanged);
 }
 
 DBusAdaptor::~DBusAdaptor()
@@ -26,7 +26,7 @@ DBusAdaptor::~DBusAdaptor()
     unregisterService();
 }
 
-int DBusAdaptor::Status() const
+int DBusAdaptor::State() const
 {
     return Recorder::instance()->status();
 }
@@ -150,9 +150,8 @@ void DBusAdaptor::Start()
     Recorder::instance()->start();
 }
 
-QString DBusAdaptor::Stop()
+void DBusAdaptor::Stop()
 {
     const QString filename = Recorder::instance()->stop();
-    qCDebug(logadaptor) << Q_FUNC_INFO << "File saved to:" << filename;
-    return filename;
+    emit RecordingFinished(filename);
 }

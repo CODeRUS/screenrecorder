@@ -1,6 +1,6 @@
 [D-BUS Service]
 Name=org.coderus.screenrecorder
 Interface=org.coderus.screenrecorder
-Exec=/usr/sbin/screenrecorder --daemon
+Exec=/bin/false
 User=nemo
-Group=privileged
+SystemdService=screenrecorder.service

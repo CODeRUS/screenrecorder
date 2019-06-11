@@ -8,7 +8,7 @@ QMAKE_RPATHDIR += /usr/share/$${TARGET}/lib
 
 QT += dbus concurrent platformsupport-private
 CONFIG += wayland-scanner link_pkgconfig
-PKGCONFIG += wayland-client
+PKGCONFIG += wayland-client mlite5
 WAYLANDCLIENTSOURCES += protocol/lipstick-recorder.xml
 
 SOURCES += \
@@ -33,6 +33,10 @@ dbusConf.files = dbus/org.coderus.screenrecorder.conf
 dbusConf.path = /etc/dbus-1/system.d/
 INSTALLS += dbusConf
 
+systemd.files = systemd/screenrecorder.service
+systemd.path = /lib/systemd/system/
+INSTALLS += systemd
+
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 
@@ -48,3 +52,4 @@ isEmpty(PROJECT_PACKAGE_VERSION) {
 DEFINES += PROJECT_PACKAGE_VERSION=\\\"$$VERSION\\\"
 
 INCLUDEPATH += /usr/include
+INCLUDEPATH += /usr/include/mlite5

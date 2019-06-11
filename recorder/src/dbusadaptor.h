@@ -15,7 +15,7 @@ public:
     bool registerService();
     void unregisterService();
 
-    Q_PROPERTY(int Status READ Status NOTIFY StatusChanged)
+    Q_PROPERTY(int State READ State NOTIFY StateChanged)
     Q_PROPERTY(QString Destination READ Destination WRITE SetDestination FINAL)
     Q_PROPERTY(int Fps READ Fps WRITE SetFps FINAL)
     Q_PROPERTY(int Buffers READ Buffers WRITE SetBuffers FINAL)
@@ -25,11 +25,11 @@ public:
     Q_PROPERTY(bool Smooth READ Smooth WRITE SetSmooth FINAL)
 
 public slots:
-    void Quit();
+    Q_NOREPLY void Quit();
     void Start();
-    QString Stop();
+    Q_NOREPLY void Stop();
 
-    int Status() const;
+    int State() const;
 
     QString Destination() const;
     void SetDestination(const QString &destination);
@@ -53,7 +53,8 @@ public slots:
     void SetSmooth(bool smooth);
 
 signals:
-    void StatusChanged(int status);
+    void StateChanged(int state);
+    void RecordingFinished(const QString &fileName);
 
 };
 

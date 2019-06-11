@@ -62,6 +62,8 @@ public:
     Status status() const;
     void setStatus(Status status);
 
+    static Options readOptions();
+
 signals:
     void statusChanged(Status status);
 

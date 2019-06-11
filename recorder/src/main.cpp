@@ -94,25 +94,24 @@ int main(int argc, char *argv[])
 
     parser.process(app);
 
-    int fps = 24;
+    Recorder::Options options = Recorder::readOptions();
     if (parser.isSet(framerateOption)) {
-        fps = parser.value(framerateOption).toInt();
+        options.fps = parser.value(framerateOption).toInt();
+        options.buffers = options.fps * 2;
     }
-    int buffers = fps * 2;
     if (parser.isSet(buffersOption)) {
-        buffers = parser.value(buffersOption).toInt();
+        options.buffers = parser.value(buffersOption).toInt();
     }
-    float scale = 1.0f;
     if (parser.isSet(scaleOption)) {
-        scale = parser.value(scaleOption).toFloat();
+        options.scale = parser.value(scaleOption).toFloat();
     }
-    int quality = 100;
     if (parser.isSet(qualityOption)) {
-        quality = parser.value(qualityOption).toInt();
+        options.quality = parser.value(qualityOption).toInt();
     }
-    const bool smooth = parser.isSet(fullOption);
-    const bool daemonize = parser.isSet(daemonOption);
-    if (daemonize) {
+    options.smooth = parser.isSet(fullOption);
+    options.fullMode = parser.isSet(fullOption);
+    options.daemonize = parser.isSet(daemonOption);
+    if (options.daemonize) {
         qCDebug(logmain) << "Daemonize";
     } else {
         setShutDownSignal(SIGINT); // shut down on ctrl-c
@@ -120,28 +119,17 @@ int main(int argc, char *argv[])
     }
 
     const QStringList args = parser.positionalArguments();
-    if (args.count() == 0 && !daemonize) {
+    if (args.count() == 0 && !options.daemonize) {
         parser.showHelp();
     }
 
-    QString dest = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     if (args.count() > 0) {
-        dest = args.first();
+        options.destination = args.first();
     }
 
-    const bool fullMode = parser.isSet(fullOption);
-    Recorder *recorder = new Recorder({
-                                dest,
-                                fps,
-                                buffers,
-                                fullMode,
-                                scale,
-                                quality,
-                                smooth,
-                                daemonize,
-                            }, qGuiApp);
+    Recorder *recorder = new Recorder(options, qGuiApp);
 
-    if (daemonize) {
+    if (options.daemonize) {
         QTimer::singleShot(0, &initializeDBus);
     } else {
         QTimer::singleShot(0, recorder, &Recorder::init);

@@ -32,6 +32,8 @@
 #include <QLoggingCategory>
 #include <QDateTime>
 
+#include <MDConfGroup>
+
 #include "wayland-lipstick-recorder-client-protocol.h"
 #include "recorder.h"
 
@@ -142,6 +144,21 @@ void Recorder::setStatus(Recorder::Status status)
     qCDebug(logrecorder) << Q_FUNC_INFO << status;
     m_status = status;
     emit statusChanged(m_status);
+}
+
+Recorder::Options Recorder::readOptions()
+{
+    MDConfGroup dconf(QStringLiteral("/org/coderus/screenrecorder"));
+    return {
+        dconf.value(QStringLiteral("destination"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)).toString(),
+        dconf.value(QStringLiteral("fps"), 24).toInt(),
+        dconf.value(QStringLiteral("buffers"), 48).toInt(),
+        dconf.value(QStringLiteral("fullmode"), false).toBool(),
+        dconf.value(QStringLiteral("scale"), 1.0f).toDouble(),
+        dconf.value(QStringLiteral("quality"), 100).toInt(),
+        dconf.value(QStringLiteral("smooth"), false).toBool(),
+        false,
+    };
 }
 
 void Recorder::init()
