@@ -15,41 +15,41 @@ public:
     bool registerService();
     void unregisterService();
 
-    Q_PROPERTY(int State READ State NOTIFY StateChanged)
-    Q_PROPERTY(QString Destination READ Destination WRITE SetDestination FINAL)
-    Q_PROPERTY(int Fps READ Fps WRITE SetFps FINAL)
-    Q_PROPERTY(int Buffers READ Buffers WRITE SetBuffers FINAL)
-    Q_PROPERTY(bool FullMode READ FullMode WRITE SetFullMode FINAL)
-    Q_PROPERTY(double Scale READ Scale WRITE SetScale FINAL)
-    Q_PROPERTY(int Quality READ Quality WRITE SetQuality FINAL)
-    Q_PROPERTY(bool Smooth READ Smooth WRITE SetSmooth FINAL)
+    Q_PROPERTY(int State READ GetState NOTIFY StateChanged)
+    Q_PROPERTY(QString Destination READ GetDestination WRITE SetDestination FINAL)
+    Q_PROPERTY(int Fps READ GetFps WRITE SetFps FINAL)
+    Q_PROPERTY(int Buffers READ GetBuffers WRITE SetBuffers FINAL)
+    Q_PROPERTY(bool FullMode READ GetFullMode WRITE SetFullMode FINAL)
+    Q_PROPERTY(double Scale READ GetScale WRITE SetScale FINAL)
+    Q_PROPERTY(int Quality READ GetQuality WRITE SetQuality FINAL)
+    Q_PROPERTY(bool Smooth READ GetSmooth WRITE SetSmooth FINAL)
 
 public slots:
     Q_NOREPLY void Quit();
     void Start();
     Q_NOREPLY void Stop();
 
-    int State() const;
+    int GetState() const;
 
-    QString Destination() const;
+    QString GetDestination() const;
     void SetDestination(const QString &destination);
 
-    int Fps() const;
+    int GetFps() const;
     void SetFps(int fps);
 
-    int Buffers() const;
+    int GetBuffers() const;
     void SetBuffers(int buffers);
 
-    bool FullMode() const;
+    bool GetFullMode() const;
     void SetFullMode(bool fullMode);
 
-    double Scale() const;
+    double GetScale() const;
     void SetScale(double scale);
 
-    int Quality() const;
+    int GetQuality() const;
     void SetQuality(int quality);
 
-    bool Smooth() const;
+    bool GetSmooth() const;
     void SetSmooth(bool smooth);
 
 signals:

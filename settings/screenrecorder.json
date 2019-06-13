@@ -1,0 +1,15 @@
+{
+    "translation_catalog": "settings-system",
+    "entries": [
+        {
+            "path": "system_settings/look_and_feel/topmenu/actions/toggle_screenrecorder",
+            "title": "Screenrecorder",
+            "type": "custom",
+            "icon": "image://theme/icon-m-screenrecorder-toggle",
+            "params": {
+                "source": "/usr/share/jolla-settings/pages/screenrecorder/ScreenrecorderToggle.qml",
+                "type": "grid"
+            }
+        }
+    ]
+}

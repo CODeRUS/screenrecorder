@@ -11,9 +11,10 @@ Page {
         repeat: false
         running: true
         onTriggered: {
-            var initialState = dbus.getProperty("State")
-            console.log("Initial state:", initialState)
-            serviceState = initialState
+            var initialState = dbus.typedCall("GetState", [], function(initialState) {
+                console.log("Initial state:", initialState)
+                serviceState = initialState
+            })
         }
     }
 

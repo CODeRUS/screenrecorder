@@ -26,12 +26,12 @@ DBusAdaptor::~DBusAdaptor()
     unregisterService();
 }
 
-int DBusAdaptor::State() const
+int DBusAdaptor::GetState() const
 {
     return Recorder::instance()->status();
 }
 
-QString DBusAdaptor::Destination() const
+QString DBusAdaptor::GetDestination() const
 {
     return Recorder::instance()->m_options.destination;
 }
@@ -42,7 +42,7 @@ void DBusAdaptor::SetDestination(const QString &destination)
     qCDebug(logadaptor) << Q_FUNC_INFO << destination;
 }
 
-int DBusAdaptor::Fps() const
+int DBusAdaptor::GetFps() const
 {
     return Recorder::instance()->m_options.fps;
 }
@@ -53,7 +53,7 @@ void DBusAdaptor::SetFps(int fps)
     qCDebug(logadaptor) << Q_FUNC_INFO << fps;
 }
 
-int DBusAdaptor::Buffers() const
+int DBusAdaptor::GetBuffers() const
 {
     return Recorder::instance()->m_options.buffers;
 }
@@ -64,7 +64,7 @@ void DBusAdaptor::SetBuffers(int buffers)
     qCDebug(logadaptor) << Q_FUNC_INFO << buffers;
 }
 
-bool DBusAdaptor::FullMode() const
+bool DBusAdaptor::GetFullMode() const
 {
     return Recorder::instance()->m_options.fullMode;
 }
@@ -75,7 +75,7 @@ void DBusAdaptor::SetFullMode(bool fullMode)
     qCDebug(logadaptor) << Q_FUNC_INFO << fullMode;
 }
 
-double DBusAdaptor::Scale() const
+double DBusAdaptor::GetScale() const
 {
     return Recorder::instance()->m_options.scale;
 }
@@ -86,7 +86,7 @@ void DBusAdaptor::SetScale(double scale)
     qCDebug(logadaptor) << Q_FUNC_INFO << scale;
 }
 
-int DBusAdaptor::Quality() const
+int DBusAdaptor::GetQuality() const
 {
     return Recorder::instance()->m_options.quality;
 }
@@ -97,7 +97,7 @@ void DBusAdaptor::SetQuality(int quality)
     qCDebug(logadaptor) << Q_FUNC_INFO << quality;
 }
 
-bool DBusAdaptor::Smooth() const
+bool DBusAdaptor::GetSmooth() const
 {
     return Recorder::instance()->m_options.smooth;
 }
