@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 import Nemo.DBus 2.0
 import com.jolla.settings 1.0
 import Nemo.Notifications 1.0
+import org.nemomobile.lipstick 0.1 as Lipstick
 
 SettingsToggle {
     id: root
@@ -58,12 +59,20 @@ SettingsToggle {
         }
     }
 
+    Lipstick.LauncherItem {
+        id: settingsLauncher
+
+        filePath: "/usr/share/applications/screenrecorder-gui.desktop"
+    }
+
+
     name: "Record screen"
     icon.source: "image://theme/icon-m-screenrecorder-toggle"
     checked: active
-    active: serviceState == 2
+    active: serviceState > 1
     busy: serviceState > 2
-    activeText: "Recording..."
+    activeText: serviceState == 2 ? "Recording..."
+                                  : "Saving..."
 
     onToggled: {
         if (serviceState == 1) {
@@ -71,6 +80,12 @@ SettingsToggle {
             startedFromToggle = true
         } else if (serviceState == 2) {
             dbus.call("Stop")
+        }
+    }
+
+    menu: ContextMenu {
+        SettingsMenuItem {
+            onClicked: settingsLauncher.launchApplication()
         }
     }
 
