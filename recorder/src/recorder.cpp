@@ -300,7 +300,7 @@ void Recorder::callback(void *data, wl_callback *cb, uint32_t time)
     rec->setStatus(StatusReady);
 
     if (!rec->m_options.daemonize) {
-        QTimer::singleShot(0, static_cast<Recorder *>(data), &Recorder::start);
+        QTimer::singleShot(0, rec, &Recorder::start);
     }
 }
 

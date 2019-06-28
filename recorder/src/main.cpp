@@ -51,7 +51,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument(QStringLiteral("destination"),
-                                 app.translate("main", "Destination file. Example: record.avi."));
+                                 app.translate("main", "Destination path. Example: /home/nemo/Documents."));
     QCommandLineOption framerateOption(
             QStringLiteral("fps"),
             app.translate("main", "Framerate. Default is 24."),
