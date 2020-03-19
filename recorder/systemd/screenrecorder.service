@@ -6,7 +6,7 @@ Conflicts=shutdown.target
 [Service]
 Type=dbus
 BusName=org.coderus.screenrecorder
-ExecStart=/usr/sbin/screenrecorder --daemon
+ExecStart=/usr/sbin/screenrecorder --daemon --usedconf
 User=nemo
 Group=privileged
 

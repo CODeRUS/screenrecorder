@@ -23,6 +23,7 @@ public:
     Q_PROPERTY(double Scale READ GetScale WRITE SetScale FINAL)
     Q_PROPERTY(int Quality READ GetQuality WRITE SetQuality FINAL)
     Q_PROPERTY(bool Smooth READ GetSmooth WRITE SetSmooth FINAL)
+    Q_PROPERTY(bool Convert READ GetConvert WRITE SetConvert FINAL)
 
 public slots:
     Q_NOREPLY void Quit();
@@ -51,6 +52,9 @@ public slots:
 
     bool GetSmooth() const;
     void SetSmooth(bool smooth);
+
+    bool GetConvert() const;
+    void SetConvert(bool convert);
 
 signals:
     void StateChanged(int state);

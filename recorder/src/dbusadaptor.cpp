@@ -108,6 +108,17 @@ void DBusAdaptor::SetSmooth(bool smooth)
     qCDebug(logadaptor) << Q_FUNC_INFO << smooth;
 }
 
+bool DBusAdaptor::GetConvert() const
+{
+    return Recorder::instance()->m_options.convert;
+}
+
+void DBusAdaptor::SetConvert(bool convert)
+{
+    Recorder::instance()->m_options.convert = convert;
+    qCDebug(logadaptor) << Q_FUNC_INFO << convert;
+}
+
 bool DBusAdaptor::registerService()
 {
     QDBusConnection bus = QDBusConnection::systemBus();
