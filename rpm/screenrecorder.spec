@@ -21,6 +21,8 @@ BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(mlite5)
 BuildRequires:  systemd
 BuildRequires:  sailfish-svg2png
+Requires: ffmpeg
+Requires: ffmpeg-tools
 
 %description
 Lipstick recorder client

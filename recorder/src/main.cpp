@@ -76,6 +76,11 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
             app.translate("main", "Scale frames using SmoothTransformation."));
     parser.addOption(smoothOption);
 
+    QCommandLineOption convertOption(
+            {QStringLiteral("c"), QStringLiteral("convert")},
+            app.translate("main", "Convert final output to MP4."));
+    parser.addOption(convertOption);
+
     QCommandLineOption qualityOption(
             QStringLiteral("quality"),
             app.translate("main", "Frame JPEG compression quality."),
@@ -92,9 +97,15 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
             app.translate("main", "Write full frames. Including frames when idle. By default only changed frames are recorded."));
     parser.addOption(fullOption);
 
+    QCommandLineOption usedconfOption(
+            QStringLiteral("usedconf"),
+            app.translate("main", "Read the config from dconf when recording starts."));
+    parser.addOption(usedconfOption);
+
     parser.process(app);
 
     Recorder::Options options = Recorder::readOptions();
+    options.usedconf = parser.isSet(usedconfOption);
     if (parser.isSet(framerateOption)) {
         options.fps = parser.value(framerateOption).toInt();
         options.buffers = options.fps * 2;
@@ -109,6 +120,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
         options.quality = parser.value(qualityOption).toInt();
     }
     options.smooth = parser.isSet(fullOption);
+    options.convert = parser.isSet(convertOption);
     options.fullMode = parser.isSet(fullOption);
     options.daemonize = parser.isSet(daemonOption);
     if (options.daemonize) {

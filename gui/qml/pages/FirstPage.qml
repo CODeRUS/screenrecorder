@@ -54,6 +54,7 @@ Page {
         property real scale: 1.0
         property int quality: 100
         property bool smooth: false
+        property bool convert: true
     }
 
     SilicaFlickable {
@@ -64,6 +65,7 @@ Page {
         Column {
             id: column
             width: parent.width
+            spacing: Theme.paddingLarge
 
             PageHeader {
                 title: qsTr("Screenrecorder")
@@ -147,6 +149,16 @@ Page {
                 }
             }
 
+            TextSwitch {
+                id: convertSwitch
+                text: qsTr("Convert to MP4 (smaller files)")
+                checked: conf.convert
+                automaticCheck: false
+                onClicked: {
+                    conf.convert = !checked
+                }
+            }
+
             Button {
                 id: actionButton
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -160,6 +172,8 @@ Page {
                         return qsTr("Stop")
                     case 3:
                         return qsTr("Saving, please wait")
+                    case 4:
+                        return qsTr("Converting, please wait")
                     }
                 }
                 enabled: serviceState > 0 && serviceState < 3
@@ -175,8 +189,13 @@ Page {
                 }
             }
 
+            SectionHeader {
+                text: qsTr("File output:")
+                visible: filenameLabel.text
+            }
             Label {
                 id: filenameLabel
+                color: Theme.highlightColor
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.margins: Theme.horizontalPageMargin
