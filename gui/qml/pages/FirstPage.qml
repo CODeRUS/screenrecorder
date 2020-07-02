@@ -23,7 +23,7 @@ Page {
         service: "org.coderus.screenrecorder"
         path: "/org/coderus/screenrecorder"
         iface: "org.coderus.screenrecorder"
-        bus: DBus.SystemBus
+        bus: DBus.SessionBus
 
         signalsEnabled: true
 

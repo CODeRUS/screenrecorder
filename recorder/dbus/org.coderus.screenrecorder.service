@@ -2,5 +2,4 @@
 Name=org.coderus.screenrecorder
 Interface=org.coderus.screenrecorder
 Exec=/bin/false
-User=nemo
 SystemdService=screenrecorder.service

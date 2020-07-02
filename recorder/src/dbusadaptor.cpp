@@ -110,7 +110,7 @@ void DBusAdaptor::SetSmooth(bool smooth)
 
 bool DBusAdaptor::registerService()
 {
-    QDBusConnection bus = QDBusConnection::systemBus();
+    QDBusConnection bus = QDBusConnection::sessionBus();
     const bool registerObjectSuccess = bus.registerObject(s_dbusObject, s_dbusInterface, qApp);
     qCDebug(logadaptor) << Q_FUNC_INFO << "Object registered:" << registerObjectSuccess;
     if (!registerObjectSuccess) {
@@ -128,7 +128,7 @@ bool DBusAdaptor::registerService()
 
 void DBusAdaptor::unregisterService()
 {
-    QDBusConnection bus = QDBusConnection::systemBus();
+    QDBusConnection bus = QDBusConnection::sessionBus();
     const bool unregisterServiceSuccess = bus.unregisterService(s_dbusService);
     qCDebug(logadaptor) << Q_FUNC_INFO << "Service unregistered:" << unregisterServiceSuccess;
     if (!unregisterServiceSuccess) {

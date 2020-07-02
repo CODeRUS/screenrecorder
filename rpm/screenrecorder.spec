@@ -38,19 +38,18 @@ rm -rf %{buildroot}
 %qmake5_install
 
 %post
-dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-systemctl stop screenrecorder.service
+systemctl-user stop screenrecorder.service
 
 %preun
-systemctl stop screenrecorder.service
+systemctl-user stop screenrecorder.service
 
 %postun
-systemctl stop screenrecorder.service
+systemctl-user stop screenrecorder.service
 
 
 %files
 %defattr(-,root,root,-)
-%attr(755, root, root) %{_sbindir}/screenrecorder
+%attr(2755, root, privileged) %{_sbindir}/screenrecorder
 
 %attr(755, root, root) %{_bindir}/screenrecorder-gui
 %{_datadir}/screenrecorder-gui
@@ -64,9 +63,8 @@ systemctl stop screenrecorder.service
 %{_datadir}/themes/%{theme}/meegotouch/z1.75/icons/*.png
 %{_datadir}/themes/%{theme}/meegotouch/z2.0/icons/*.png
 
-%{_sysconfdir}/dbus-1/system.d/org.coderus.screenrecorder.conf
-%{_datadir}/dbus-1/system-services/org.coderus.screenrecorder.service
-/lib/systemd/system/screenrecorder.service
+%{_datadir}/dbus-1/services/org.coderus.screenrecorder.service
+%{_libdir}/systemd/user/screenrecorder.service
 
 %{_datadir}/jolla-settings/entries/screenrecorder.json
 %{_datadir}/jolla-settings/pages/screenrecorder/ScreenrecorderToggle.qml

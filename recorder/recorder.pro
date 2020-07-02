@@ -26,7 +26,7 @@ HEADERS += \
     src/dbusadaptor.h
 
 dbusService.files = dbus/org.coderus.screenrecorder.service
-dbusService.path = /usr/share/dbus-1/system-services/
+dbusService.path = /usr/share/dbus-1/services/
 INSTALLS += dbusService
 
 dbusConf.files = dbus/org.coderus.screenrecorder.conf
@@ -34,7 +34,7 @@ dbusConf.path = /etc/dbus-1/system.d/
 INSTALLS += dbusConf
 
 systemd.files = systemd/screenrecorder.service
-systemd.path = /lib/systemd/system/
+systemd.path = /usr/lib/systemd/user/
 INSTALLS += systemd
 
 DEFINES += QT_DEPRECATED_WARNINGS

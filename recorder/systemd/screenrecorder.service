@@ -1,14 +1,9 @@
 [Unit]
 Description=Screenrecorder daemon
-After=local-fs.target dbus.socket
-Conflicts=shutdown.target
+After=lipstick.service
+Requires=lipstick.service
 
 [Service]
 Type=dbus
 BusName=org.coderus.screenrecorder
 ExecStart=/usr/sbin/screenrecorder --daemon
-User=nemo
-Group=privileged
-
-EnvironmentFile=-/var/lib/environment/nemo/*.conf
-Environment=XDG_RUNTIME_DIR=/run/user/100000
