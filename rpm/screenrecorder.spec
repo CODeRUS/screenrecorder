@@ -5,7 +5,7 @@
 
 Name:       screenrecorder
 Summary:    Sailfish screen recorder
-Version:    0.2.1
+Version:    0.3.0
 Release:    1
 Group:      System/GUI/Other
 License:    GPLv2
@@ -16,6 +16,8 @@ BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Gui)
 BuildRequires:  pkgconfig(Qt5DBus)
+BuildRequires:  pkgconfig(Qt5Concurrent)
+BuildRequires:  qt5-qtplatformsupport-devel
 BuildRequires:  qt5-qtwayland-wayland_egl-devel
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(mlite5)
