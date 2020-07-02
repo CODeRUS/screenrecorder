@@ -12,8 +12,9 @@ License:    GPLv2
 URL:        https://github.com/coderus/screenrecorder
 Source0:    %{name}-%{version}.tar.bz2
 BuildRequires:  pkgconfig(Qt5Core)
-BuildRequires:  pkgconfig(Qt5Gui)
 BuildRequires:  pkgconfig(Qt5DBus)
+BuildRequires:  pkgconfig(Qt5Qml)
+BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Concurrent)
 BuildRequires:  qt5-qtplatformsupport-devel
 BuildRequires:  qt5-qtwayland-wayland_egl-devel
@@ -21,6 +22,7 @@ BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(mlite5)
 BuildRequires:  systemd
 BuildRequires:  sailfish-svg2png
+%systemd_requires
 
 %description
 Lipstick recorder client
@@ -38,13 +40,13 @@ rm -rf %{buildroot}
 %qmake5_install
 
 %post
-systemctl-user stop screenrecorder.service
+%systemd_user_post screenrecorder.service
 
 %preun
-systemctl-user stop screenrecorder.service
+%systemd_user_preun screenrecorder.service
 
 %postun
-systemctl-user stop screenrecorder.service
+%systemd_user_postun screenrecorder.service
 
 
 %files
@@ -64,7 +66,7 @@ systemctl-user stop screenrecorder.service
 %{_datadir}/themes/%{theme}/meegotouch/z2.0/icons/*.png
 
 %{_datadir}/dbus-1/services/org.coderus.screenrecorder.service
-%{_libdir}/systemd/user/screenrecorder.service
+%{%_userunitdir}/screenrecorder.service
 
 %{_datadir}/jolla-settings/entries/screenrecorder.json
 %{_datadir}/jolla-settings/pages/screenrecorder/ScreenrecorderToggle.qml
