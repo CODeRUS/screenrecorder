@@ -34,7 +34,7 @@ dbusConf.path = /etc/dbus-1/system.d/
 INSTALLS += dbusConf
 
 systemd.files = systemd/screenrecorder.service
-systemd.path = /usr/lib/systemd/user/
+systemd.path = $$SPEC_UNITDIR
 INSTALLS += systemd
 
 DEFINES += QT_DEPRECATED_WARNINGS
