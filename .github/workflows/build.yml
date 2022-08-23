@@ -9,7 +9,7 @@ on:
       - master
 
 env:
-  RELEASE: 3.3.0.14
+  RELEASE: 4.4.0.68
 
 jobs:
   build:
@@ -27,6 +27,14 @@ jobs:
             cd build ;
             cp -r /share/* . ;
             mb2 -t SailfishOS-$RELEASE-armv7hl build ;
+            sudo cp -r RPMS/*.rpm /share/output"
+
+    - name: Build aarch64
+      run: docker run --rm --privileged -v $PWD:/share coderus/sailfishos-platform-sdk:$RELEASE /bin/bash -c "
+            mkdir -p build ;
+            cd build ;
+            cp -r /share/* . ;
+            mb2 -t SailfishOS-$RELEASE-aarch64 build ;
             sudo cp -r RPMS/*.rpm /share/output"
 
     - name: Build i486
