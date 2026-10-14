@@ -1,5 +1,5 @@
 [D-BUS Service]
 Name=org.coderus.screenrecorder
-Interface=org.coderus.screenrecorder
+Interface=/org/coderus/screenrecorder
 Exec=/bin/false
 SystemdService=screenrecorder.service

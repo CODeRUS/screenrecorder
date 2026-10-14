@@ -11,6 +11,8 @@ OTHER_FILES += \
     qml/cover/CoverPage.qml \
     qml/pages/FirstPage.qml \
     qml/pages/SecondPage.qml \
+    qml/sounds/tick.wav \
+    qml/*.png \
     rpm/qml-test.spec \
     translations/*.ts \
     qml-test.desktop
@@ -47,3 +49,4 @@ DISTFILES += \
     qml/screenrecorder-gui.qml
 
 INSTALLS += target
+SAILFISHAPP_ICONS += 86x86 108x108 128x128 256x256

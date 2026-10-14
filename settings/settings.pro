@@ -7,5 +7,4 @@ INSTALLS += settingsjson
 
 settingsqml.files = ScreenrecorderToggle.qml
 settingsqml.path = /usr/share/jolla-settings/pages/screenrecorder
-
 INSTALLS += settingsqml

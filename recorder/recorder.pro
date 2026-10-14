@@ -30,7 +30,8 @@ dbusService.path = /usr/share/dbus-1/services/
 INSTALLS += dbusService
 
 dbusConf.files = dbus/org.coderus.screenrecorder.conf
-dbusConf.path = /etc/dbus-1/system.d/
+dbusConf.path = /usr/share/dbus-1/system.d/
+
 INSTALLS += dbusConf
 
 systemd.files = systemd/screenrecorder.service

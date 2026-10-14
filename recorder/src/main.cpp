@@ -92,6 +92,12 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
             app.translate("main", "Write full frames. Including frames when idle. By default only changed frames are recorded."));
     parser.addOption(fullOption);
 
+
+    QCommandLineOption convertOption(
+            {QStringLiteral("c"), QStringLiteral("convert")},
+            app.translate("main", "Convert final output to MP4."));
+    parser.addOption(convertOption);
+
     parser.process(app);
 
     Recorder::Options options = Recorder::readOptions();
@@ -109,8 +115,11 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
         options.quality = parser.value(qualityOption).toInt();
     }
     options.smooth = parser.isSet(fullOption);
+    options.convert = parser.isSet(convertOption);
     options.fullMode = parser.isSet(fullOption);
+
     options.daemonize = parser.isSet(daemonOption);
+
     if (options.daemonize) {
         qCDebug(logmain) << "Daemonize";
     } else {

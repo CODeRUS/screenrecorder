@@ -1,7 +1,5 @@
-#include <QGuiApplication>
-#include <QQuickView>
+#include <QtQuick>
 #include <sailfishapp.h>
-
 
 int main(int argc, char *argv[])
 {

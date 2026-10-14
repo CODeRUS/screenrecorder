@@ -150,13 +150,14 @@ Recorder::Options Recorder::readOptions()
 {
     MDConfGroup dconf(QStringLiteral("/org/coderus/screenrecorder"));
     return {
-        dconf.value(QStringLiteral("destination"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)).toString(),
+        dconf.value(QStringLiteral("destination"), QStandardPaths::writableLocation(QStandardPaths::MoviesLocation)).toString(),
         dconf.value(QStringLiteral("fps"), 24).toInt(),
         dconf.value(QStringLiteral("buffers"), 48).toInt(),
         dconf.value(QStringLiteral("fullmode"), false).toBool(),
         dconf.value(QStringLiteral("scale"), 1.0f).toDouble(),
         dconf.value(QStringLiteral("quality"), 100).toInt(),
         dconf.value(QStringLiteral("smooth"), false).toBool(),
+        dconf.value(QStringLiteral("convert"), true).toBool(),
         false,
     };
 }
@@ -195,7 +196,7 @@ void Recorder::start()
     m_size.setHeight(qRound(m_size.height() * m_options.scale));
 
 
-    const QString dateString = QDateTime::currentDateTime().toString(QStringLiteral("dd-MM-yy_HH-mm-ss"));
+    const QString dateString = QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss"));
     const QString filename = QStringLiteral("/screenrecorder-%1.avi").arg(dateString);
 
     m_avi->setFileName(m_options.destination + filename);
@@ -230,11 +231,83 @@ QString Recorder::stop()
     m_pool->waitForDone();
     m_avi->close();
 
+    // Convert the file to MP4 if requested
+
+    QString file(m_avi->fileName());
+
+    // this should not be neccessary, we have a bug in options init?
+    MDConfGroup dconf(QStringLiteral("/org/coderus/screenrecorder"));
+    bool conv = dconf.value(QStringLiteral("convert"), true).toBool();
+    if (conv) {
+        file = convert(m_avi->fileName());
+    }
+    else {
+        qCDebug(logrecorder) << "No converstion, leaving as AVI";
+    }
+
     setStatus(StatusReady);
 
     lipstick_recorder_destroy(m_recorder);
 
-    return m_avi->fileName();
+    return file;
+}
+
+QString Recorder::convert(const QString & filein)
+{
+    setStatus(StatusConverting);
+    qCDebug(logrecorder) << "Converting to MP4";
+
+
+    ///usr/bin/ffmpeg,-progress,-,-nostats,-hide_banner,-y,-i,
+    //home/defaultuser/Videos/screenrecorder-20261010_181758.avi,
+    //-c:v,vp9,-filter:v,tblend,scale=iw/2:ih/2,-c:a,copy,-r,10,
+    //home/defaultuser/Videos/screenrecorder-20261010_181758_edit.mkv
+
+    QString fileout(filein);
+    fileout.truncate(filein.lastIndexOf(QStringLiteral(".")));
+    fileout.append(QStringLiteral(".mp4"));
+    // mark's vp9
+    /*
+    QStringList arguments = {QStringLiteral("-y"),
+                             QStringLiteral("-i"),
+                             m_avi->fileName(),
+                             QStringLiteral("-c:v"),
+                             QStringLiteral("vp9"),
+                             QStringLiteral("-crf"),
+                             QStringLiteral("28"),
+                             QStringLiteral("-b:v"),
+                             QStringLiteral("0"),
+                             QStringLiteral("-row-mt"),
+                             QStringLiteral("1"),
+                             QStringLiteral("-an"),
+                             fileout};
+    */
+    /* david's original*/
+    QStringList arguments = {QStringLiteral("-i"),
+                             m_avi->fileName(),
+                             QStringLiteral("-y"),
+                             QStringLiteral("-q:v"),
+                             QStringLiteral("2"),
+                             QStringLiteral("-pix_fmt"),
+                             QStringLiteral("yuv420p"),
+                             QStringLiteral("-preset"),
+                             QStringLiteral("slow"),
+                             QStringLiteral("-movflags"),
+                             QStringLiteral("+faststart"),
+                             fileout};
+    int result = QProcess::execute(QStringLiteral("/usr/bin/ffmpeg"), arguments);
+    if (result == 0) {
+        printf("wrote");
+        qCDebug(logrecorder) << "Converted as " << fileout;
+        QFile::remove(filein);
+    }
+    else {
+        printf("failed");
+        qCDebug(logrecorder) << "Converted failed with code: " << result;
+        fileout = filein;
+    }
+
+    return fileout;
 }
 
 void Recorder::handleShutDown()
@@ -273,11 +346,9 @@ void Recorder::saveFrame()
     if (!m_lastFrame) {
         return;
     }
-
     if (m_shutdown) {
         return;
     }
-
     QAviWriter *avi = m_avi;
     QPixmap pix = m_lastFrame->pixmap;
     int quality = m_options.quality;
@@ -340,12 +411,18 @@ void Recorder::frame(void *data, lipstick_recorder *recorder, wl_buffer *buffer,
     QAviWriter *avi = rec->m_avi;
     QPixmap pix = buf->pixmap;
     int quality = rec->m_options.quality;
-    QtConcurrent::run(rec->m_pool, [avi, pix, quality] {
-        avi->addFrame(pix, "JPG", quality);
-    });
     if (rec->m_options.fullMode) {
-        rec->m_timer->start();
+        // Constant-fps mode: only the fps timer writes frames (see saveFrame()).
+        // Here we just record the latest frame and ensure the timer is running so
+        // the output is exactly `fps` frames/second with no duplicate writes.
         rec->m_lastFrame = buf;
+        if (!rec->m_timer->isActive())
+            rec->m_timer->start();
+    } else {
+        // Changed-frames-only mode: write each delivered frame immediately.
+        QtConcurrent::run(rec->m_pool, [avi, pix, quality] {
+            avi->addFrame(pix, "JPG", quality);
+        });
     }
     buf->busy = false;
 

@@ -2,7 +2,6 @@ TEMPLATE = subdirs
 SUBDIRS = \
     recorder \
     gui \
-    icons \
     settings
 
 gui.depends = recorder
